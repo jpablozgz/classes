@@ -22,7 +22,7 @@ class Models_applicationModel
 			{
 				$parent = strstr($key,':'); // look for parent
 				if ($parent!==FALSE)            // if it has parent, look for ancestors
-					$ancestors = contextAncestors($arrayConfigs,trim(substr($parent,1)));
+					$ancestors = self::contextAncestors($arrayConfigs,trim(substr($parent,1)));
 				$ancestors[]= $key;	// appends itself to the list of ancestors
 				return $ancestors;
 			}
@@ -116,7 +116,7 @@ class Models_applicationModel
 				FROM resources
 				LEFT JOIN roles_has_resources
 						ON resources.idresource=roles_has_resources.resources_idresource
-				WHERE roles_has_resources.roles_idrole='".$_SESSION[$config['sessionNamespace']['user_role']]."';";
+				WHERE roles_has_resources.roles_idrole='".$_SESSION[$config['sessionNamespace']]['user_role']."';";
 		$resources = $objDB->query($sql);
 		$arrayResources = array();
 		

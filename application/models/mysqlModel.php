@@ -21,7 +21,6 @@ class Models_mysqlModel
 	
 	private function connect($config)
 	{
-		Models_debugModel::_debug($config);die;
 	    try
 	    {
 	        // Create connection to MYSQL database

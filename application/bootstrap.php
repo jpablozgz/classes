@@ -10,10 +10,10 @@ class Application_bootstrap
 	{
 		$this->configFile = $filename;
 		
-		$this->_initSession();
 		$this->_initConfig();
+		$this->_initSession();
 		$this->_initDb();
-		$this->request = $this->_initRequest();
+		$this->_initRequest();
 		$this->_initDefaultRole();
 		$this->_initAcl();
 	}
@@ -22,14 +22,15 @@ class Application_bootstrap
 	{
 		session_start();
 		if(!isset($_SESSION[$this->config['sessionNamespace']]))
+		{
 			$_SESSION[$this->config['sessionNamespace']]=array();
-		Models_debugModel::_debug($_SESSION);
+		}
 	}
 	
 	protected function _initConfig()
 	{
 		$this->config = Models_applicationModel::readConfig('../application/configs/'.$this->configFile.'.ini',
-							 						  APPLICATION_ENV);
+							 						  		APPLICATION_ENV);
 	}
 
 	protected function _initDb()
@@ -45,12 +46,12 @@ class Application_bootstrap
 	
 	protected function _initDefaultRole()
 	{
-		$_SESSION['user_role']=$this->config['defaultRole'];
+		$_SESSION[$this->config['sessionNamespace']]['user_role'] = $this->config['defaultRole'];
 	}
 
 	protected function _initAcl()
 	{
-		$this->request = Models_applicationModel::acl($this->request);
+		$this->request = Models_applicationModel::acl($this->request, $this->config);
 	}
 	
 	public function run()
