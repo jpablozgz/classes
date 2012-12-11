@@ -5,7 +5,7 @@ defined('APPLICATION_ENV')?:
 
 defined('APPLICATION_PATH')?:
 	define ('APPLICATION_PATH','../application');
-	
+
 defined('DOCUMENT_ROOT')?:
 	define ('DOCUMENT_ROOT', $_SERVER['DOCUMENT_ROOT']);
 	

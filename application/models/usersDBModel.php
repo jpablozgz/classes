@@ -106,7 +106,7 @@ class Models_usersDBModel
 		return $arrayLanguages;
 	}
 	
-	function readUsers()
+	public function readUsers()
 	{
 		$sql = "SELECT iduser,name,email,password,description,city,coders,photo
 				FROM users
@@ -116,9 +116,9 @@ class Models_usersDBModel
 		foreach($arrayUsers as $key => $user)
 		{
 			$arrayUsers[$key]['pets'] = implode(",",
-											readUserPets($arrayUsers[$key]['iduser'],$cnx));
+										$this->readUserPets($arrayUsers[$key]['iduser'],$this->cnx));
 			$arrayUsers[$key]['languages'] = implode(",",
-											readUserLanguages($arrayUsers[$key]['iduser'],$cnx));
+										$this->readUserLanguages($arrayUsers[$key]['iduser'],$this->cnx));
 		}
 		return $arrayUsers;
 	}

@@ -39,14 +39,14 @@ class Models_applicationModel
 	public static function readConfig($configFile, $context)
 	{
 		$arrayConfigs = array();
-		
 		$arrayConfigs = parse_ini_file($configFile, true);
+
 		$ancestors = self::contextAncestors($arrayConfigs,$context);
 		
 		$arrayConfig = array();
 		foreach($ancestors as $ancestor)
 			$arrayConfig = array_merge($arrayConfig,$arrayConfigs[$ancestor]);
-		
+
 		return $arrayConfig;
 	}
 	

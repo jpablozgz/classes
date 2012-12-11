@@ -46,7 +46,10 @@ class Application_bootstrap
 	
 	protected function _initDefaultRole()
 	{
-		$_SESSION[$this->config['sessionNamespace']]['user_role'] = $this->config['defaultRole'];
+		if(isset($_SESSION[$this->config['sessionNamespace']]['iduser']))
+			$user = readUser($_SESSION[$this->config['sessionNamespace']]['iduser'], $cnx);
+		else
+			$_SESSION[$this->config['sessionNamespace']]['user_role'] = $this->config['defaultRole'];
 	}
 
 	protected function _initAcl()
@@ -58,8 +61,11 @@ class Application_bootstrap
 	{
 		/* Aqui se crearia la sesion, se crearian las cookies,
 		 * y se verificaria que el usuario esta autenticado */
-		
-		include("../application/controllers/".$this->request['controller'].".php");
+		include("../application/controllers/".$this->request['controller']);
+		$class = $this->request['controller']."Controller";
+		$method = $this->request['action'].'Action';
+		$obj = new $class($this->config);
+		$obj->method();
 	}
 }
 ?>
