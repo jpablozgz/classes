@@ -1,18 +1,17 @@
 <?php
 
-//BUGFIX: Corregir chapucillas
-
-class userController
+class usersController
 {
 	public $content;
 	public $view;
+	public $model;
 	public $config;
 	
 	public function __construct($config)
 	{
-		$this->view = new Models_applicationModel();
 		$this->config = $config;
-		$arrayUser = initArrayUser();
+		$this->view = new Models_applicationModel($config);
+		$this->model = new Models_usersDBModel($config);
 	}
 	
 	public function indexAction()
@@ -22,34 +21,33 @@ class userController
 	
 	public function selectAction()
 	{
-		$model = new Models_usersDBModel($this->config);
-		$arrayUsers = $model->readUsers($cnx);
+		$arrayUsers = $this->model->readUsers();
 		$params=array('arrayUsers'=>$arrayUsers);
-		$this->content = $this->view->renderView("users/select", $params, $this->config);
+		$this->content = $this->view->renderView("users/select", $params);
 	}
 	
 	public function insertAction()
 	{
 		if($_POST)
 		{
-			$imageName = (!$_FILES['photo']['error'] ? uploadImage($_FILES, $config) : '');
-			$id=insertUser($_POST, $cnx, $imageName);
+			$imageName = (!$_FILES['photo']['error'] ? Models_usersDBModel::uploadImage($_FILES, $this->config) : '');
+			$id = $this->model->insertUser($_POST, $imageName);
 			header("Location: index.php?controller=users&action=select");
 			exit();
 		}
 		else
 		{
-			$params=array('arrayUser'=>$arrayUser,
-						  'arrayDataPets'=>readPets($cnx),
+			$params=array('arrayUser'=>Models_usersDBModel::initArrayUser(),
+						  'arrayDataPets'=>$this->model->readPets(),
 						  'arrayUserPets'=>array(),
-						  'arrayDataCities'=>readCities($cnx),
+						  'arrayDataCities'=>$this->model->readCities(),
 						  'arrayUserCities'=>array(),
-						  'arrayDataCoders'=>readCoders($cnx),
+						  'arrayDataCoders'=>$this->model->readCoders(),
 						  'arrayUserCoders'=>array(),
-						  'arrayDataLanguages'=>readLanguages($cnx),
-						  'arrayUserLanguages'=>array(),
+						  'arrayDataLanguages'=>$this->model->readLanguages(),
+						  'arrayUserLanguages'=>array()
 						 );
-			$content = renderView("users/formulario", $params, $config);
+			$this->content = $this->view->renderView("users/formulario", $params);
 		}
 	}
 	
@@ -57,26 +55,26 @@ class userController
 	{
 		if($_POST)
 		{
-			$imageName = updateImage($_FILES, $_GET['id'], $config);
-			updateUser($arrayData, $_GET['id'], $cnx, $imageName);
+			$imageName = $this->model->updateImage($_FILES, $_GET['id']);
+			$this->model->updateUser($_POST, $_GET['id'], $imageName);
 			header("Location: index.php?controller=users&action=select");
 			exit();
 		}
 		else
 		{
-			$arrayUser=readUser($_GET['id'], $cnx);
+			$arrayUser = $this->model->readUser($_GET['id']);
 			$params=array('arrayUser'=>$arrayUser,
-						  'arrayDataPets'=>readPets($cnx),
-						  'arrayUserPets'=>readUserPets($arrayUser['iduser'], $cnx),
-						  'arrayDataCities'=>readCities($cnx),
+						  'arrayDataPets'=>$this->model->readPets(),
+						  'arrayUserPets'=>$this->model->readUserPets($arrayUser['iduser']),
+						  'arrayDataCities'=>$this->model->readCities(),
 						  'arrayUserCities'=>array($arrayUser['cities_idcity']),
-						  'arrayDataCoders'=>readCoders($cnx),
+						  'arrayDataCoders'=>$this->model->readCoders(),
 						  'arrayUserCoders'=>array($arrayUser['coders']),
-						  'arrayDataLanguages'=>readLanguages($cnx),
-						  'arrayUserLanguages'=>readUserLanguages($arrayUser['iduser'], $cnx),
+						  'arrayDataLanguages'=>$this->model->readLanguages(),
+						  'arrayUserLanguages'=>$this->model->readUserLanguages($arrayUser['iduser'])
 						 );
 		}
-		$this->insertAction();
+		$this->content = $this->view->renderView("users/formulario", $params);
 	}
 	
 	public function deleteAction()
@@ -84,36 +82,21 @@ class userController
 		if($_POST)
 		{
 			if($_POST['submit']=='yes')
-				deleteUser($_GET['id'], $cnx);
+				$this->model->deleteUser($_GET['id']);
 			header("Location: index.php?controller=users&action=select");
 			exit();
 		}
 		else
 		{
-			$content = renderView("users/delete", array(), $config);
+			$this->content = $this->view->renderView("users/delete", array());
 		}
 	}
 	
 	public function __destruct()
 	{
-		$params = array('userName'=>(isset($_SESSION['name'])?$_SESSION['name']:'Guest'),
+		$params = array('userName'=>(isset($_SESSION[$this->config['sessionNamespace']]['name'])?
+											$_SESSION[$this->config['sessionNamespace']]['name']:'Guest'),
 						'content'=>$this->content);
-		echo $this->view->renderLayout("layout_admin1", $params, $this->config);
+		echo $this->view->renderLayout("layout_admin1", $params);
 	}
 }
-// Initializing variables
-
-switch($arrayRequest['action'])
-{
-	case 'update':
-		// CAUTION: There is no break; here!!!!!!!!!!
-	case 'insert':
-		break;
-	case 'delete':
-		break;
-	case 'index':
-	case 'select':
-	default:
-		break;
-}
-?>

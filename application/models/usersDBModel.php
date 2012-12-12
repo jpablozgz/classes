@@ -3,12 +3,12 @@
 class Models_usersDBModel
 {
 	protected $config;
-	protected $cnx;
-	
+	protected $objDB;
+		
 	public function __construct($config)
 	{
 		$this->config = $config;
-		$this->cnx=$_SESSION['register']['db'];
+		$this->objDB=$_SESSION['register']['db'];
 	}
 	
 	/** Upload photo in uploads
@@ -58,7 +58,7 @@ class Models_usersDBModel
 	 * Initialize user array with keys
 	 * @return array: User array initialized
 	 */
-	public function initArrayUser()
+	public static function initArrayUser()
 	{
 		$keys=array('id','name','email','password','description','pet','city','coder','languages','photo');
 		$arrayUser=array();
@@ -85,7 +85,7 @@ class Models_usersDBModel
 				INNER JOIN users_has_pets ON
 					  users_has_pets.users_iduser=".$id." AND
 					  users_has_pets.pets_idpet=pets.idpet;";
-		$results = parent::query($sql);
+		$results = $this->objDB->query($sql);
 		foreach ($results as $result)
 			$arrayPets[] = $result['pet'];
 		return $arrayPets;
@@ -100,7 +100,7 @@ class Models_usersDBModel
 				INNER JOIN users_has_languages ON
 					  users_has_languages.users_iduser=".$id." AND
 					  users_has_languages.languages_idlanguage=languages.idlanguage;";
-		$results = parent::query($sql);
+		$results = $this->objDB->query($sql);
 		foreach ($results as $result)
 			$arrayLanguages[] = $result['language'];
 		return $arrayLanguages;
@@ -112,13 +112,13 @@ class Models_usersDBModel
 				FROM users
 				INNER JOIN cities ON
 					  users.cities_idcity=cities.idcity;";
-		$arrayUsers = parent::query($sql);
+		$arrayUsers = $this->objDB->query($sql);
 		foreach($arrayUsers as $key => $user)
 		{
 			$arrayUsers[$key]['pets'] = implode(",",
-										$this->readUserPets($arrayUsers[$key]['iduser'],$this->cnx));
+										$this->readUserPets($arrayUsers[$key]['iduser']));
 			$arrayUsers[$key]['languages'] = implode(",",
-										$this->readUserLanguages($arrayUsers[$key]['iduser'],$this->cnx));
+										$this->readUserLanguages($arrayUsers[$key]['iduser']));
 		}
 		return $arrayUsers;
 	}
@@ -128,7 +128,7 @@ class Models_usersDBModel
 		$sql = "SELECT *
 				FROM users
 				WHERE iduser='".$id."';";
-		$arrayUser = parent::query($sql);
+		$arrayUser = $this->objDB->query($sql);
 		return $arrayUser[0];
 	}
 	
@@ -143,10 +143,10 @@ class Models_usersDBModel
 				coders = '".(array_key_exists('coder',$arrayData) ? $arrayData['coder']: '')."',
 				photo = '".$imageName."';
 			 ";
-		parent::query($sql);
-		$sql="SELECT LAST_INSERT_ID() as id;";
-		$array=parent::query($sql);
-		$iduser=$array[0]['id'];
+		$this->objDB->query($sql);
+		$sql = "SELECT LAST_INSERT_ID() as id;";
+		$array = $this->objDB->query($sql);
+		$iduser = $array[0]['id'];
 		
 		foreach($arrayData['pets'] as $idpet)
 		{
@@ -154,7 +154,7 @@ class Models_usersDBModel
 					users_iduser = '".$iduser."',
 					pets_idpet = '".$idpet."';
 				 ";
-			parent::query($sql,$cnx);
+			$this->objDB->query($sql);
 		}
 		
 		foreach($arrayData['languages'] as $idlanguage)
@@ -163,7 +163,7 @@ class Models_usersDBModel
 					users_iduser = '".$iduser."',
 					languages_idlanguage = '".$idlanguage."';
 				 ";
-			parent::query($sql,$cnx);
+			$this->objDB->query($sql);
 		}
 		
 		return $iduser;
@@ -171,11 +171,13 @@ class Models_usersDBModel
 	
 	public function updateUser($arrayData, $id, $imageName)
 	{
+		//TODO: Completar updateUser
 		return $numRows;
 	}
 	
 	public function deleteUser($id)
 	{
+		//TODO: Completar deleteUser
 		return $numRows;
 	}
 	
@@ -183,7 +185,7 @@ class Models_usersDBModel
 	{
 		$sql="SELECT idpet AS id, pet AS value
 				FROM pets";
-		$arrayPets = parent::query($sql);
+		$arrayPets = $this->objDB->query($sql);
 		return $arrayPets;
 	}
 	
@@ -191,7 +193,7 @@ class Models_usersDBModel
 	{
 		$sql="SELECT idlanguage AS id, language AS value
 				FROM languages";
-		$arrayLanguages = parent::query($sql);
+		$arrayLanguages = $this->objDB->query($sql);
 		return $arrayLanguages;
 	}
 	
@@ -201,7 +203,7 @@ class Models_usersDBModel
 		
 		$sql="SELECT coder AS id, coder AS value
 				FROM coders";
-		$arrayCoders = parent::query($sql);
+		$arrayCoders = $this->objDB->query($sql);
 		return $arrayCoders;
 	}
 	
@@ -209,7 +211,7 @@ class Models_usersDBModel
 	{
 		$sql="SELECT idcity AS id, city AS value
 				FROM cities";
-		$arrayCities = parent::query($sql);
+		$arrayCities = $this->objDB->query($sql);
 		return $arrayCities;
 	}
 }

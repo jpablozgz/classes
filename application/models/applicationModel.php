@@ -1,7 +1,12 @@
 <?php
 class Models_applicationModel
 {
+	public $config;
 	
+	public function __construct($config)
+	{
+		$this->config = $config;
+	}
 	/** 
 	 *  Returns the ancestors of a context plus itself (oldest first)
 	 *  @param array $arrayConfigs Array of all configs per context
@@ -57,19 +62,19 @@ class Models_applicationModel
 	 * @param array $config Config variables
 	 * @return string Rendered view
 	 */
-	public function renderView($view, array $params, $config)
+	public function renderView($view, array $params)
 	{
 		ob_start();
-		include($config['viewsDirectory']."/".$view.".php");
+		include($this->config['viewsDirectory']."/".$view.".php");
 		$content=ob_get_contents();
 		ob_end_clean();
 		return $content;
 	}
 	
-	public function renderLayout($layout, array $params, $config)
+	public function renderLayout($layout, array $params)
 	{
 		ob_start();
-		include($config['layoutsDirectory']."/".$layout.".php");
+		include($this->config['layoutsDirectory']."/".$layout.".php");
 		$content=ob_get_contents();
 		ob_end_clean();
 		return $content;
@@ -96,7 +101,7 @@ class Models_applicationModel
 			else
 			{
 				$_GET['controller']='error';
-				$_GET['action']='404';
+				$_GET['action']='error404';
 			}
 		else
 		{
@@ -131,7 +136,7 @@ class Models_applicationModel
 				$arrayRequest=$arrayRequest;
 		else {
 			$arrayRequest['controller']='error';
-			$arrayRequest['action']='403';
+			$arrayRequest['action']='error403';
 		}
 		return $arrayRequest;
 	}
